@@ -30,13 +30,15 @@ class gen_grads_data:
         data = np.fromfile(ifile, '>f', sep='')
       return data
 
-  def s2n(self, data):
+  def n2s(self, data):
+      # FNL data direction is S2N
+      # data sorting : north pole to south pole
       lat, lon = self.const()
       array2d = data.reshape(lat, lon)
-      s2n_array2d = copy.deepcopy(array2d)
+      n2s_array2d = copy.deepcopy(array2d)
       for i in range(lon):
-        s2n_array2d[:,i] = array2d[::-1,i]
-      return s2n_array2d.flatten()
+        n2s_array2d[:,i] = array2d[::-1,i]
+      return n2s_array2d.flatten()
 
   def load_data(self, inputdir):
       filelist = self.get_filelist(inputdir)
@@ -44,7 +46,7 @@ class gen_grads_data:
       datalist = []
       for ifile in filelist:
           idata = self.read_binfile(ifile)
-          rdata = self.s2n(idata)
+          rdata = self.n2s(idata)
           datalist += [rdata]
       # max value for 0-1 normalization
       imax = np.asarray(datalist).max()
@@ -62,7 +64,7 @@ class gen_grads_data:
           isize = os.path.getsize(ifile)
           if isize == fsize:
             idata = self.read_binfile(ifile)
-            rdata = self.s2n(idata)
+            rdata = self.n2s(idata)
             datalist += [rdata]
       # max value for 0-1 normalization
       imax = np.asarray(datalist).max()
