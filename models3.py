@@ -1,17 +1,18 @@
 # _*_ coding" utf-8  _*_
 
-from keras.layers import Input, Dense
+from keras.layers import Input, Conv2D, MaxPooling2D, Conv2DTranspose
 from keras.models import Model
 import numpy as np
 
 from mod_gendata import *
 
 # usr-settings
-keyward='pwat'
-epochs=1000
+keyward='rh'
+#epochs=1000
 #epochs=50
-#epochs=10
+epochs=10
 batch_size=256
+nkernel=2
 inputdir='/home/kurihana/ml_model/work_mymodel/ex4/data/train_data'
 testdir='/home/kurihana/ml_model/work_mymodel/ex4/data/test_data'
 
@@ -22,21 +23,46 @@ n = 2 # number of pics on screen
 
 #get data
 gd = gen_grads_data()
-x_train = gd.load_key_data(inputdir, keyward)
-x_test  = gd.load_key_data(testdir, keyward)
-xdim = x_train.shape[1]
-print(x_train.shape[1])
-#stop
+x_train  = gd.load_key_data(inputdir, keyward)
+x_test   = gd.load_key_data(testdir, keyward)
+x_train  = x_train.reshape(x_train.shape[0],lat, lon,1)
+x_test   = x_test.reshape(x_test.shape[0],lat, lon,1)
 
 # adjust minst data
 x_train  = x_train.astype('float32')
 x_test   = x_test.astype('float32')
 
-# compile - model
-encoding_dim = 32 # num. of dim in a mid-layer
-input_img = Input(shape=(xdim,))
-encoded = Dense(encoding_dim, activation='relu')(input_img)
-decoded = Dense(xdim, activation='sigmoid')(encoded)
+
+### compile conv-model
+input_img = Input(shape=(lat,lon,1))
+# 1
+ndim1=lat
+encoded=Conv2D(1,3,3, activation='relu')(input_img)
+#encoded=MaxPooling2D(pool_size=(2,2))(encoded)
+# 2
+ndim2=int(ndim1/2)
+encoded=Conv2D(8,3,3, activation='relu')(encoded)
+#encoded=MaxPooling2D(pool_size=(2,2))(encoded)
+# 3
+ndim3=int(ndim2/2)
+encoded=Conv2D(16,3,3, activation='relu')(encoded)
+#encoded=MaxPooling2D(pool_size=(2,2))(encoded)
+# 4-back
+ndim4=ndim3
+decoded=Conv2DTranspose(16,3,3, activation='relu')(encoded)
+# 5-stable
+decoded=Conv2D(16,3,3, activation='relu') (decoded)
+# 6-back
+ndim5=ndim2
+decoded=Conv2DTranspose(8,3,3, activation='relu')(decoded)
+# 7-stable
+decoded=Conv2D(8, 3,3, activation='relu')(decoded)
+# 8-back
+ndim5=ndim2
+decoded=Conv2DTranspose(1,3,3, activation='relu')(decoded)
+# 9-stable
+#decoded=Conv2D(1, 3,3, activation='relu', border_mode='same')(decoded)
+#
 autoencoder = Model(input=input_img, output=decoded)
 autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
 
@@ -59,7 +85,7 @@ autoencoder.fit(x_train, x_train,
 #print('Test loss:', score[0])
 #print('Test accuracy:', score[1])
 
-autoencoder.save('./'+keyward+'_ae'+str(epochs)+'.h5')
+autoencoder.save('./'+keyward+'_convae'+str(epochs)+'.h5')
 
 #### plot
 import matplotlib.pyplot as plt

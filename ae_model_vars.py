@@ -1,5 +1,25 @@
 # _*_ coding" utf-8  _*_
 
+"""
+  + Descriptoin
+      demo code for autoencoder
+
+      data : necp reanaltysis 1.0 by 1.0
+            Variable   :  surfae level presure
+            Train data : 2018/05/01 00UTC - 2018/07/31 18UTC
+            Test  data : 2018/08/01 00UTC - 2018/08/20 18UTC
+
+      result : 50/50epochs ==> loss: 0.2193 - val_loss: 0.2235
+
+  + Hisotry
+
+     ver      date      editor       description
+  ----------------------------------------------------------------------
+     1.0   Aug.24.18   T.Kurihana   autoencoder/decoder model for PS
+
+"""
+
+
 from keras.layers import Input, Dense
 from keras.models import Model
 import numpy as np
@@ -7,9 +27,7 @@ import numpy as np
 from mod_gendata import *
 
 # usr-settings
-keyward='pwat'
-epochs=1000
-#epochs=50
+epochs=50
 #epochs=10
 batch_size=256
 inputdir='/home/kurihana/ml_model/work_mymodel/ex4/data/train_data'
@@ -18,12 +36,12 @@ testdir='/home/kurihana/ml_model/work_mymodel/ex4/data/test_data'
 # plot-settings
 lon=360
 lat=181
-n = 2 # number of pics on screen
+n = 5 # number of pics on screen
 
 #get data
 gd = gen_grads_data()
-x_train = gd.load_key_data(inputdir, keyward)
-x_test  = gd.load_key_data(testdir, keyward)
+x_train = gd.load_data(inputdir)
+x_test  = gd.load_data(testdir)
 xdim = x_train.shape[1]
 print(x_train.shape[1])
 #stop
@@ -40,10 +58,6 @@ decoded = Dense(xdim, activation='sigmoid')(encoded)
 autoencoder = Model(input=input_img, output=decoded)
 autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
 
-# model summary
-print(autoencoder.summary())
-
-#stop
 # learning
 autoencoder.fit(x_train, x_train,
                 epochs = epochs,
@@ -53,13 +67,8 @@ autoencoder.fit(x_train, x_train,
                 validation_data=(x_test, x_test)
                )
 
-# check score 
-#score = autoencoder.evaluate(x_test, x_test, verbose=1)
-#print()
-#print('Test loss:', score[0])
-#print('Test accuracy:', score[1])
-
-autoencoder.save('./'+keyward+'_ae'+str(epochs)+'.h5')
+# save model
+autoencoder.save('./sflp_autoencoder50.h5')
 
 #### plot
 import matplotlib.pyplot as plt

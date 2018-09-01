@@ -7,9 +7,7 @@ import numpy as np
 from mod_gendata import *
 
 # usr-settings
-keyward='pwat'
-epochs=1000
-#epochs=50
+epochs=50
 #epochs=10
 batch_size=256
 inputdir='/home/kurihana/ml_model/work_mymodel/ex4/data/train_data'
@@ -18,12 +16,12 @@ testdir='/home/kurihana/ml_model/work_mymodel/ex4/data/test_data'
 # plot-settings
 lon=360
 lat=181
-n = 2 # number of pics on screen
+n = 5 # number of pics on screen
 
 #get data
 gd = gen_grads_data()
-x_train = gd.load_key_data(inputdir, keyward)
-x_test  = gd.load_key_data(testdir, keyward)
+x_train = gd.load_data(inputdir)
+x_test  = gd.load_data(testdir)
 xdim = x_train.shape[1]
 print(x_train.shape[1])
 #stop
@@ -38,12 +36,10 @@ input_img = Input(shape=(xdim,))
 encoded = Dense(encoding_dim, activation='relu')(input_img)
 decoded = Dense(xdim, activation='sigmoid')(encoded)
 autoencoder = Model(input=input_img, output=decoded)
-autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
+autoencoder.compile(optimizer='adadelta', 
+                    loss='categoricical_corssentropy',
+                   )
 
-# model summary
-print(autoencoder.summary())
-
-#stop
 # learning
 autoencoder.fit(x_train, x_train,
                 epochs = epochs,
@@ -59,7 +55,7 @@ autoencoder.fit(x_train, x_train,
 #print('Test loss:', score[0])
 #print('Test accuracy:', score[1])
 
-autoencoder.save('./'+keyward+'_ae'+str(epochs)+'.h5')
+autoencoder.save('./sflp_autoencoder50.h5')
 
 #### plot
 import matplotlib.pyplot as plt
