@@ -8,14 +8,15 @@ from mod_gendata import *
 from mod_cutregion import *
 
 # usr-settings
-keyward='rh'
+keyward='pwat'
 #epochs=1000
 #epochs=100
 epochs=50
 #epochs=30
 #epochs=10
 batch_size=256
-inputdir='/home/kurihana/ml_model/work_mymodel/ex4/data/train_data'
+#inputdir='/home/kurihana/ml_model/work_mymodel/ex4/data/train_data'
+inputdir='/home/kurihana/ml_model/work_mymodel/ex4/data/train_aug_data'
 testdir='/home/kurihana/ml_model/work_mymodel/ex4/data/test_data'
 
 # original data shape
@@ -88,7 +89,7 @@ autoencoder.fit(x_train, x_train,
                )
 
 # save trained model
-autoencoder.save('./'+keyward+'_convae'+str(epochs)+'_2knldeeper.h5')
+autoencoder.save('./'+keyward+'_convae'+str(epochs)+'_2knldeeper_peraug.h5')
 
 #### plot
 import matplotlib.pyplot as plt
