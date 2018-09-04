@@ -9,9 +9,9 @@ from mod_cutregion import *
 
 # usr-settings
 keyward='pwat'
-#epochs=1000
+epochs=1000
 #epochs=100
-epochs=50
+#epochs=50
 #epochs=30
 #epochs=10
 batch_size=256
